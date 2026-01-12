@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JSON Tools</title>
+<style>
+body{font-family:Arial;}
+textarea{width:90%;height:40px;}
+button{margin:5px;}
+</style>
+
+<script>
+function jsonToObj(){
+  out.innerText = JSON.stringify(JSON.parse(j1.value), null, 2);
+}
+
+/* FIXED: JSON → Date */
+function jsonToDate(){
+  const obj = JSON.parse(j2.value);
+  const date = new Date(obj.date);
+
+  dateOut.innerText =
+    "Date Object: " + date +
+    "\nISO String: " + date.toISOString();
+}
+
+
+function jsonToCSV(){
+  let a = JSON.parse(j3.value);
+  let c = Object.keys(a[0]).join(",") + "\n";
+  a.forEach(o => c += Object.values(o).join(",") + "\n");
+  csv.innerText = c;
+}
+
+function csvToJSON(){
+  let l = j4.value.trim().split("\n");
+  let k = l[0].split(",");
+  let r = l.slice(1).map(x => {
+    let o = {};
+    x.split(",").forEach((v, i) => o[k[i]] = v);
+    return o;
+  });
+  js.innerText = JSON.stringify(r, null, 2);
+}
+
+async function makeHash(){
+  let d = new TextEncoder().encode(h.value);
+  let b = await crypto.subtle.digest("SHA-256", d);
+  hash.innerText = [...new Uint8Array(b)]
+    .map(x => x.toString(16).padStart(2, "0"))
+    .join("");
+}
+</script>
+</head>
+
+<body>
+
+<h3>a JSON → Object</h3>
+<textarea id="j1">{"name":"John","age":20}</textarea>
+<button onclick="jsonToObj()">Convert</button>
+<pre id="out"></pre>
+
+<h3>b JSON → Date</h3>
+<textarea id="j2">{"date":"2025-01-10T12:30:00Z"}</textarea>
+<button onclick="jsonToDate()">Convert</button>
+<pre id="dateOut"></pre>
+
+<h3>c JSON ↔ CSV</h3>
+<textarea id="j3">[{"name":"John","age":20}]</textarea>
+<button onclick="jsonToCSV()">JSON→CSV</button>
+<pre id="csv"></pre>
+
+<textarea id="j4">name,age
+John,20</textarea>
+<button onclick="csvToJSON()">CSV→JSON</button>
+<pre id="js"></pre>
+
+<h3>d Hash using crypto</h3>
+<textarea id="h">hello</textarea>
+<button onclick="makeHash()">Create Hash</button>
+<pre id="hash"></pre>
+
+</body>
+</html>
